@@ -103,7 +103,7 @@ function Page() {
       <ul id='summaryList'>
         {summary.map((item, index) => (
           <li key={index} style={{ paddingTop: "10px" }}>
-            <button className={'summary-button'} style={{textAlign:"start", BorderAll:"none"}}>{item}</button>  
+            <button className={'summary-button'}>{item}</button>  
           </li>
         ))}
       </ul>
