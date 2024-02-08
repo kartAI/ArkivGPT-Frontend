@@ -1,0 +1,12 @@
+.summary-button:hover {
+    background: rgba(0, 132, 255, 0.192);
+    border-radius: 10px;
+}
+
+.summary-button {
+    text-align:"start";
+    border-width: 0px;
+    background: transparent;
+    font-size: medium;
+    vertical-align: text-top;
+}

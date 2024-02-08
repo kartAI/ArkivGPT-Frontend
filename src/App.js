@@ -2,7 +2,7 @@ import logo from './logo.svg';
 import './App.css';
 
 import { TextField , Button, Grid, Box, Container, IconButton} from '@mui/material';
-import {NavigateBeforeOutlined, NavigateNextOutlined} from '@mui/icons-material';
+import { BorderAll, NavigateBeforeOutlined, NavigateNextOutlined } from '@mui/icons-material';
 import { useEffect, useState } from 'react';
 
 const handleSummaryClicked = () => {
@@ -47,7 +47,7 @@ function Page() {
   };
 
   return (
-    <Container maxWidth="100%">
+    <Container maxWidth="100%" style={{height:"100vh"}}>
       <Grid
         container
         spacing={1}
@@ -102,7 +102,9 @@ function Page() {
       <h2 id='summaryTitle'>Summary</h2>
       <ul id='summaryList'>
         {summary.map((item, index) => (
-          <li key={index} style={{ paddingTop: "10px" }}>{item}</li>
+          <li key={index} style={{ paddingTop: "10px" }}>
+            <button className={'summary-button'} style={{textAlign:"start", BorderAll:"none"}}>{item}</button>  
+          </li>
         ))}
       </ul>
     </Box>
