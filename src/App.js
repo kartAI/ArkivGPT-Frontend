@@ -45,10 +45,11 @@ function Page() {
   }
 
   return (
-    <Container display="flex" flexDirection="column" maxWidth="100%">
+    <Grid height="100vh" display="flex" flexDirection="column">
       <Grid
         container
         spacing={1}
+        marginTop="10px"
         justifyContent="center"
         alignItems="center"
       >
@@ -65,13 +66,12 @@ function Page() {
           <Button variant="contained" onClick={handleSearch}>Search</Button>
         </Grid>
       </Grid>
-      <Grid display="flex" flex={1} marginTop={5} justifyContent="center" alignItems="center">
-        <div id='left' style={{ flex: 1 }}>
+      <Grid marginTop="40px" display="flex" flex={1} justifyContent="center" alignItems="center">
+        <div id='left' style={{ flex: 1, height:"100%"}}>
           <Box display="flex" id='pdfholder' justifyContent="center" alignItems="center" style={{ maxHeight: '50%', overflow: 'hidden' }}>
-            <img
+            <iframe
               src={image}
-              alt={image}
-              style={{ maxWidth: '60%', maxHeight: '60%', width: 'auto', height: 'auto' }}
+              style={{ width: '60%', height: '60%'}}
             />
           </Box>
           <div id='navigator'>
@@ -95,7 +95,7 @@ function Page() {
             </Grid>
           </div>
         </div>
-        <div id='right' style={{ flex: 1 }}>
+        <div id='right' style={{ flex: 1, height:"100%"}}>
           <Box width="80%" display="flex" flexDirection="column" justifyContent="center" alignItems="center">
             <h2 id='summaryTitle'>Summary</h2>
             <ul id='summaryList'>
@@ -113,7 +113,7 @@ function Page() {
           </Box>
         </div>
       </Grid>
-    </Container>
+    </Grid>
   )
 }
 

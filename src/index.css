@@ -1,3 +1,11 @@
+body,html {
+    margin: 0;
+    padding: 0;
+}
+* {
+    box-sizing: border-box;
+}
+
 .summary-button:hover {
     background: rgba(0, 132, 255, 0.192);
     border-radius: 10px;
