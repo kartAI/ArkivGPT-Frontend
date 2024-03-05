@@ -4,20 +4,44 @@ import { TextField, Button, Grid, Box, Container, IconButton } from '@mui/materi
 import { NavigateBeforeOutlined, NavigateNextOutlined } from '@mui/icons-material';
 import { useState } from 'react';
 
-function Page() {
+function App() {
   const [summary, setSummary] = useState([]);
   const [image, setImage] = useState("");
   const [showLoader, setShowLoader] = useState(false)
+  const [values, setValues] = useState({"GNR": "", "BNR": "", "SNR": ""})
+  const [sendingBlocked, setSendingBlocked] = useState(false);
+  const [showError, setShowError] = useState("");
 
-  const url = "http://localhost/api/Summary?GNR=101&BNR=102&SNR=103";
+  const url = 'http://localhost/api/Summary?GNR=' + values["GNR"] + 
+                                          '&BNR=' + values["BNR"] + 
+                                          '&SNR=' + values["SNR"];
+
+  const handleValueChange = (e) => {
+    setShowError("");
+    setSendingBlocked(false);
+    setValues({...values, [e.target.name]: e.target.value})
+  }
 
   const handleSearch = () => {
+    if (sendingBlocked) {
+      console.log("Sending has been blocked");
+      return;
+    }
+
+    if (values["GNR"] == "0" || values["GNR"] == "") {
+      setShowError("GNR field cannot be empty");
+      return;
+    }
+
+    setShowError("");
+    setShowLoader(l => true);
+    setSendingBlocked(true);
+
     setSummary(prevSummary => []);
     const eventSourceInitDict = { headers: { 'Access-Control-Allow-Origin': '*' } };
     const eventSource = new EventSource(url, eventSourceInitDict);
 
     eventSource.addEventListener('message', function (e) {
-      setShowLoader(l => true);
       const jsonData = JSON.parse(e.data);
       setSummary(prevSummary => [...prevSummary, jsonData]);
     }, false);
@@ -25,9 +49,13 @@ function Page() {
     eventSource.addEventListener('close', function (e) {
       setShowLoader(l => false);
       eventSource.close();
+      setSendingBlocked(false);
     });
 
     eventSource.onerror = (error) => {
+      setShowLoader(false);
+      setShowError("Request failed, try again");
+      setSendingBlocked(false);
       console.log('EventSource failed:', error);
     };
   };
@@ -54,13 +82,22 @@ function Page() {
         alignItems="center"
       >
         <Grid item>
-          <TextField label="GNR" type="search" />
+          <TextField
+          name='GNR'
+          onChange={handleValueChange}
+          label="GNR" type="search" />
         </Grid>
         <Grid item>
-          <TextField label="BNR" type="search" />
+          <TextField 
+          name='BNR'
+          onChange={handleValueChange}
+          label="BNR" type="search" />
         </Grid>
         <Grid item>
-          <TextField label="SNR" type="search" />
+          <TextField 
+          name='SNR'
+          onChange={handleValueChange}
+          label="SNR" type="search" />
         </Grid>
         <Grid item>
           <Button variant="contained" onClick={handleSearch}>Search</Button>
@@ -104,21 +141,18 @@ function Page() {
                   <button className={'summary-button'} onClick={() => handleSummaryClick(item.Document)}>{item.Resolution}</button>
                 </li>
               ))}
-              {showLoader &&
-                <li>
-                  <p>Laster...</p>
-                </li>
-              }
             </ul>
+            {showLoader &&
+              <p>Laster...</p>
+            }
+            {showError != "" &&
+              <p style={{color:"red"}}>{showError}</p>
+            }
           </Box>
         </div>
       </Grid>
     </Grid>
   )
-}
-
-function App() {
-  return <Page />
 }
 
 export default App;
