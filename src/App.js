@@ -43,6 +43,7 @@ function App() {
 
     eventSource.addEventListener('message', function (e) {
       const jsonData = JSON.parse(e.data);
+      setShowError("");
       setSummary(prevSummary => [...prevSummary, jsonData]);
     }, false);
 
