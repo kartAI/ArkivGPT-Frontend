@@ -1,6 +1,6 @@
 import './App.css';
 
-import { TextField, Button, Grid, Box, Container, IconButton } from '@mui/material';
+import { TextField, Button, Grid, Box, IconButton } from '@mui/material';
 import { NavigateBeforeOutlined, NavigateNextOutlined } from '@mui/icons-material';
 import { useState } from 'react';
 
@@ -11,10 +11,30 @@ function App() {
   const [values, setValues] = useState({"GNR": "", "BNR": "", "SNR": ""})
   const [sendingBlocked, setSendingBlocked] = useState(false);
   const [showError, setShowError] = useState("");
+  const [summaryId, setsummaryId] = useState([]);
 
-  const url = 'http://localhost/api/Summary?GNR=' + values["GNR"] + 
+  const createURL = () => {
+    if (values["BNR"] === "") {
+      setValues({...values, "BNR": "0"});
+    }
+
+    if (values["SNR"] === "") {
+      setValues({...values, "SNR": "0"});
+    }
+
+    if (!summaryId.length === 0) {
+      return 'http://localhost/api/Summary?GNR=' + values["GNR"] + 
                                           '&BNR=' + values["BNR"] + 
-                                          '&SNR=' + values["SNR"];
+                                          '&SNR=' + values["SNR"] +
+                                          'StartId=' + 0;
+    }
+
+    let startId = Math.max(summaryId);
+    return 'http://localhost/api/Summary?GNR=' + values["GNR"] + 
+                                        '&BNR=' + values["BNR"] + 
+                                        '&SNR=' + values["SNR"] +
+                                        '&StartId=' + startId;
+  }
 
   const handleValueChange = (e) => {
     setShowError("");
@@ -23,12 +43,14 @@ function App() {
   }
 
   const handleSearch = () => {
+    setsummaryId(i => []);
+
     if (sendingBlocked) {
       console.log("Sending has been blocked");
       return;
     }
 
-    if (values["GNR"] == "0" || values["GNR"] == "") {
+    if (values["GNR"] === "0" || values["GNR"] === "") {
       setShowError("GNR field cannot be empty");
       return;
     }
@@ -39,10 +61,15 @@ function App() {
 
     setSummary(prevSummary => []);
     const eventSourceInitDict = { headers: { 'Access-Control-Allow-Origin': '*' } };
-    const eventSource = new EventSource(url, eventSourceInitDict);
+    const eventSource = new EventSource(createURL(), eventSourceInitDict);
 
     eventSource.addEventListener('message', function (e) {
       const jsonData = JSON.parse(e.data);
+
+      if (summaryId.includes(jsonData["ID"])) {
+        return;
+      }
+      setsummaryId(prevIDs => [...prevIDs, jsonData["ID"]]);
       setShowError("");
       setSummary(prevSummary => [...prevSummary, jsonData]);
     }, false);
@@ -146,7 +173,7 @@ function App() {
             {showLoader &&
               <p>Laster...</p>
             }
-            {showError != "" &&
+            {showError !== "" &&
               <p style={{color:"red"}}>{showError}</p>
             }
           </Box>
