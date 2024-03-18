@@ -11,29 +11,26 @@ function App() {
   const [values, setValues] = useState({"GNR": "", "BNR": "", "SNR": ""})
   const [sendingBlocked, setSendingBlocked] = useState(false);
   const [showError, setShowError] = useState("");
-  const [summaryId, setsummaryId] = useState([]);
+
+  let receivedElements = -1;
 
   const createURL = () => {
-    if (values["BNR"] === "") {
-      setValues({...values, "BNR": "0"});
+    let url = new URL("http://" + window.location.hostname + "/api/Summary");
+
+    url.searchParams.append("GNR", values["GNR"]);
+
+
+    if (values["BNR"] !== "") {
+      url.searchParams.append("BNR", values["BNR"]);
     }
 
-    if (values["SNR"] === "") {
-      setValues({...values, "SNR": "0"});
+    if (values["SNR"] !== "") {
+      url.searchParams.append("SNR", values["SNR"]);
     }
 
-    if (!summaryId.length === 0) {
-      return 'http://localhost/api/Summary?GNR=' + values["GNR"] + 
-                                          '&BNR=' + values["BNR"] + 
-                                          '&SNR=' + values["SNR"] +
-                                          'StartId=' + 0;
-    }
+    url.searchParams.append("StartId", receivedElements +1);
 
-    let startId = Math.max(summaryId);
-    return 'http://localhost/api/Summary?GNR=' + values["GNR"] + 
-                                        '&BNR=' + values["BNR"] + 
-                                        '&SNR=' + values["SNR"] +
-                                        '&StartId=' + startId;
+    return url.href;
   }
 
   const handleValueChange = (e) => {
@@ -43,7 +40,6 @@ function App() {
   }
 
   const handleSearch = () => {
-    setsummaryId(i => []);
 
     if (sendingBlocked) {
       console.log("Sending has been blocked");
@@ -56,20 +52,26 @@ function App() {
     }
 
     setShowError("");
-    setShowLoader(l => true);
     setSendingBlocked(true);
 
     setSummary(prevSummary => []);
     const eventSourceInitDict = { headers: { 'Access-Control-Allow-Origin': '*' } };
     const eventSource = new EventSource(createURL(), eventSourceInitDict);
 
+    eventSource.addEventListener('open', function (e) {
+      setShowLoader(l => true);
+    })
+
     eventSource.addEventListener('message', function (e) {
       const jsonData = JSON.parse(e.data);
 
-      if (summaryId.includes(jsonData["ID"])) {
+      console.log("Before " + jsonData["Id"] + " " + receivedElements);
+      if (jsonData["Id"] < receivedElements) {
+        console.log("After " + jsonData["Id"] + " " + receivedElements);
         return;
       }
-      setsummaryId(prevIDs => [...prevIDs, jsonData["ID"]]);
+
+      receivedElements++;
       setShowError("");
       setSummary(prevSummary => [...prevSummary, jsonData]);
     }, false);
@@ -78,12 +80,14 @@ function App() {
       setShowLoader(l => false);
       eventSource.close();
       setSendingBlocked(false);
+      receivedElements = -1;
     });
 
     eventSource.onerror = (error) => {
       setShowLoader(false);
       setShowError("Request failed, try again");
       setSendingBlocked(false);
+      receivedElements = -1;
       console.log('EventSource failed:', error);
     };
   };
@@ -135,7 +139,7 @@ function App() {
         <div id='left' style={{ flex: 1, height:"100%"}}>
           <Box display="flex" id='pdfholder' justifyContent="center" alignItems="center" style={{ maxHeight: '50%', overflow: 'hidden' }}>
             <iframe
-              src={image}
+              src="http://localhost/api/document?document=2-2/test.pdf"
               style={{ width: '60%', height: '60%'}}
             />
           </Box>
