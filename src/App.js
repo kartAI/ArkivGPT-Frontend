@@ -1,6 +1,6 @@
 import './App.css';
 
-import { TextField, Button, Grid, Box, Container, IconButton } from '@mui/material';
+import { TextField, Button, Grid, Box, IconButton } from '@mui/material';
 import { NavigateBeforeOutlined, NavigateNextOutlined } from '@mui/icons-material';
 import { useState } from 'react';
 
@@ -12,9 +12,26 @@ function App() {
   const [sendingBlocked, setSendingBlocked] = useState(false);
   const [showError, setShowError] = useState("");
 
-  const url = 'http://localhost/api/Summary?GNR=' + values["GNR"] + 
-                                          '&BNR=' + values["BNR"] + 
-                                          '&SNR=' + values["SNR"];
+  let receivedElements = -1;
+
+  const createURL = () => {
+    let url = new URL("http://" + window.location.hostname + "/api/Summary");
+
+    url.searchParams.append("GNR", values["GNR"]);
+
+
+    if (values["BNR"] !== "") {
+      url.searchParams.append("BNR", values["BNR"]);
+    }
+
+    if (values["SNR"] !== "") {
+      url.searchParams.append("SNR", values["SNR"]);
+    }
+
+    url.searchParams.append("StartId", receivedElements +1);
+
+    return url.href;
+  }
 
   const handleValueChange = (e) => {
     setShowError("");
@@ -23,26 +40,38 @@ function App() {
   }
 
   const handleSearch = () => {
+
     if (sendingBlocked) {
       console.log("Sending has been blocked");
       return;
     }
 
-    if (values["GNR"] == "0" || values["GNR"] == "") {
+    if (values["GNR"] === "0" || values["GNR"] === "") {
       setShowError("GNR field cannot be empty");
       return;
     }
 
     setShowError("");
-    setShowLoader(l => true);
     setSendingBlocked(true);
 
     setSummary(prevSummary => []);
     const eventSourceInitDict = { headers: { 'Access-Control-Allow-Origin': '*' } };
-    const eventSource = new EventSource(url, eventSourceInitDict);
+    const eventSource = new EventSource(createURL(), eventSourceInitDict);
+
+    eventSource.addEventListener('open', function (e) {
+      setShowLoader(l => true);
+    })
 
     eventSource.addEventListener('message', function (e) {
       const jsonData = JSON.parse(e.data);
+
+      console.log("Before " + jsonData["Id"] + " " + receivedElements);
+      if (jsonData["Id"] < receivedElements) {
+        console.log("After " + jsonData["Id"] + " " + receivedElements);
+        return;
+      }
+
+      receivedElements++;
       setShowError("");
       setSummary(prevSummary => [...prevSummary, jsonData]);
     }, false);
@@ -51,12 +80,14 @@ function App() {
       setShowLoader(l => false);
       eventSource.close();
       setSendingBlocked(false);
+      receivedElements = -1;
     });
 
     eventSource.onerror = (error) => {
       setShowLoader(false);
       setShowError("Request failed, try again");
       setSendingBlocked(false);
+      receivedElements = -1;
       console.log('EventSource failed:', error);
     };
   };
@@ -108,7 +139,7 @@ function App() {
         <div id='left' style={{ flex: 1, height:"100%"}}>
           <Box display="flex" id='pdfholder' justifyContent="center" alignItems="center" style={{ maxHeight: '50%', overflow: 'hidden' }}>
             <iframe
-              src={image}
+              src="http://localhost/api/document?document=2-2/test.pdf"
               style={{ width: '60%', height: '60%'}}
             />
           </Box>
@@ -146,7 +177,7 @@ function App() {
             {showLoader &&
               <p>Laster...</p>
             }
-            {showError != "" &&
+            {showError !== "" &&
               <p style={{color:"red"}}>{showError}</p>
             }
           </Box>
