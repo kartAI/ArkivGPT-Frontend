@@ -102,6 +102,7 @@ function App() {
 
   const handleSummaryClick = (src) => {
     setImage(img => src);
+    console.log("Setting pdf source to " + src)
   }
 
   return (
@@ -139,7 +140,7 @@ function App() {
         <div id='left' style={{ flex: 1, height:"100%"}}>
           <Box display="flex" id='pdfholder' justifyContent="center" alignItems="center" style={{ maxHeight: '50%', overflow: 'hidden' }}>
             <iframe
-              src="http://localhost/api/document?document=2-2/test.pdf"
+              src={image}
               style={{ width: '60%', height: '60%'}}
             />
           </Box>
