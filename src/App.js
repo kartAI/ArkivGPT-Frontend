@@ -138,10 +138,10 @@ function App() {
       </Grid>
       <Grid marginTop="40px" display="flex" flex={1} justifyContent="center" alignItems="center">
         <div id='left' style={{ flex: 1, height:"100%"}}>
-          <Box display="flex" id='pdfholder' justifyContent="center" alignItems="center" style={{ maxHeight: '50%', overflow: 'hidden' }}>
+          <Box display="flex" id='pdfholder' justifyContent="center" alignItems="center" style={{ height: "100%", overflow: 'hidden' }}>
             <iframe
               src={image}
-              style={{ width: '60%', height: '60%'}}
+              style={{ width: '90%', height: '90%'}}
             />
           </Box>
           <div id='navigator'>
@@ -152,16 +152,6 @@ function App() {
               paddingTop={2}
               alignItems="center"
             >
-              <Grid item>
-                <IconButton onClick={handlePrevImage}>
-                  <NavigateBeforeOutlined />
-                </IconButton>
-              </Grid>
-              <Grid item>
-                <IconButton onClick={handleNextImage}>
-                  <NavigateNextOutlined />
-                </IconButton>
-              </Grid>
             </Grid>
           </div>
         </div>
