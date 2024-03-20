@@ -7,7 +7,7 @@ import { useState } from 'react';
 function App() {
   const [summary, setSummary] = useState([]);
   const [image, setImage] = useState("");
-  const [showLoader, setShowLoader] = useState(false)
+  const [showLoader, setShowLoader] = useState("")
   const [values, setValues] = useState({"GNR": "", "BNR": "", "SNR": ""})
   const [sendingBlocked, setSendingBlocked] = useState(false);
   const [showError, setShowError] = useState("");
@@ -58,9 +58,7 @@ function App() {
     const eventSourceInitDict = { headers: { 'Access-Control-Allow-Origin': '*' } };
     const eventSource = new EventSource(createURL(), eventSourceInitDict);
 
-    eventSource.addEventListener('open', function (e) {
-      setShowLoader(l => true);
-    })
+    setShowLoader(l => "Loading...");
 
     eventSource.addEventListener('message', function (e) {
       const jsonData = JSON.parse(e.data);
@@ -76,15 +74,21 @@ function App() {
       setSummary(prevSummary => [...prevSummary, jsonData]);
     }, false);
 
+    eventSource.addEventListener('update', function (e) {
+      const jsonData = JSON.parse(e.data);
+      let message = jsonData["message"];
+      setShowLoader(l => message);
+    });
+
     eventSource.addEventListener('close', function (e) {
-      setShowLoader(l => false);
+      setShowLoader(l => "");
       eventSource.close();
       setSendingBlocked(false);
       receivedElements = -1;
     });
 
     eventSource.onerror = (error) => {
-      setShowLoader(false);
+      setShowLoader(l => "");
       setShowError("Request failed, try again");
       setSendingBlocked(false);
       receivedElements = -1;
@@ -165,8 +169,8 @@ function App() {
                 </li>
               ))}
             </ul>
-            {showLoader &&
-              <p>Laster...</p>
+            {showLoader !== "" &&
+              <p>{showLoader}</p>
             }
             {showError !== "" &&
               <p style={{color:"red"}}>{showError}</p>
