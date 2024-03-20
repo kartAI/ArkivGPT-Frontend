@@ -170,7 +170,7 @@ function App() {
               ))}
             </ul>
             {showLoader !== "" &&
-              <p>{showLoader}</p>
+              <p style={{fontWeight: "bold"}}>{showLoader}</p>
             }
             {showError !== "" &&
               <p style={{color:"red"}}>{showError}</p>
