@@ -66,7 +66,7 @@ function App() {
       console.log("Before " + jsonData["Id"] + " " + receivedElements);
       if (jsonData["Id"] < receivedElements) {
         console.log("After " + jsonData["Id"] + " " + receivedElements);
-        return;
+        //return;
       }
 
       receivedElements++;
@@ -164,7 +164,7 @@ function App() {
             <h2 id='summaryTitle'>Summary</h2>
             <ul id='summaryList'>
               {summary.map((item, index) => (
-                <li key={index} style={{ paddingTop: "10px" }}>
+                <li id={item.Id} key={index} style={{ paddingTop: "10px" }}>
                   <button className={'summary-button'} onClick={() => handleSummaryClick(item.Document)}>{item.Resolution}</button>
                 </li>
               ))}
