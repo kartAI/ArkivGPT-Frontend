@@ -96,14 +96,6 @@ function App() {
     };
   };
 
-  const handleNextImage = () => {
-    //setImageIndex((prevIndex) => (prevIndex + 1) % images.length);
-  };
-
-  const handlePrevImage = () => {
-    //setImageIndex((prevIndex) => (prevIndex - 1 + images.length) % images.length);
-  };
-
   const handleSummaryClick = (src) => {
     setImage(img => src);
     console.log("Setting pdf source to " + src)
@@ -124,17 +116,31 @@ function App() {
           onChange={handleValueChange}
           label="GNR" type="search" />
         </Grid>
+
         <Grid item>
           <TextField 
           name='BNR'
           onChange={handleValueChange}
-          label="BNR" type="search" />
+          label="BNR" type="search" 
+          onKeyDown={(ev) => {
+            if (ev.key === 'Enter') {
+              handleSearch();
+              ev.preventDefault();
+            }
+          }}/>
         </Grid>
+
         <Grid item>
           <TextField 
           name='SNR'
           onChange={handleValueChange}
-          label="SNR" type="search" />
+          label="SNR" type="search"
+          onKeyDown={(ev) => {
+            if (ev.key === 'Enter') {
+              handleSearch();
+              ev.preventDefault();
+            }
+           }} />
         </Grid>
         <Grid item>
           <Button variant="contained" onClick={handleSearch}>Search</Button>
